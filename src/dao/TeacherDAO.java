@@ -68,4 +68,19 @@ public class TeacherDAO {
         }
         return null;
     }
+    public static String getUsernameByEmail(String email) {
+        String sql = "SELECT username FROM teachers WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("username");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

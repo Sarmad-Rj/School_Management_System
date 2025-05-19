@@ -1,7 +1,9 @@
 package ui;
 
 import dao.ClassDAO;
+import dao.SubjectDAO;
 import models.ClassItem;
+import models.Subject;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,162 +15,191 @@ import java.util.List;
 public class ManageClassesSubjectsPanel extends JPanel {
     private JTextField classNameField;
     private JTextField sectionField;
-    private DefaultTableModel tableModel;
-    private JTable classTable;
+    private JTextField subjectNameField;
     private JComboBox<ClassItem> classComboBox;
-    private JComboBox<String> subjectComboBox;
+    private JPanel subjectCheckboxPanel;
+    private DefaultTableModel classTableModel;
 
     public ManageClassesSubjectsPanel() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
 
+        // Header
         JLabel titleLabel = new JLabel("Manage Classes and Subjects", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
         add(titleLabel, BorderLayout.NORTH);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        // Panels Container
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
-        JPanel formPanel = new JPanel();
-        formPanel.setLayout(new GridBagLayout());
-        formPanel.setBorder(BorderFactory.createTitledBorder("Add New Class"));
+        contentPanel.add(createClassFormPanel());
+        contentPanel.add(Box.createVerticalStrut(20));
+        contentPanel.add(createSubjectFormPanel());
+        contentPanel.add(Box.createVerticalStrut(20));
+        contentPanel.add(createAssignSubjectsPanel());
+        contentPanel.add(Box.createVerticalStrut(20));
+        contentPanel.add(createClassTablePanel());
+
+        // Wrap in scroll pane
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        add(scrollPane, BorderLayout.CENTER);
+
+        loadClasses();
+        loadSubjects();
+    }
+
+    private JPanel createClassFormPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Add New Class"));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(5, 10, 5, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         classNameField = new JTextField(15);
-        sectionField = new JTextField(5);
-        JButton addClassButton = new JButton("Add Class");
+        sectionField = new JTextField(10);
+        JButton addButton = new JButton("Add Class");
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(new JLabel("Class Name:"), gbc);
+        panel.add(new JLabel("Class Name:"), gbc);
         gbc.gridx = 1;
-        formPanel.add(classNameField, gbc);
+        panel.add(classNameField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        formPanel.add(new JLabel("Section:"), gbc);
+        panel.add(new JLabel("Section:"), gbc);
         gbc.gridx = 1;
-        formPanel.add(sectionField, gbc);
+        panel.add(sectionField, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 2;
-        formPanel.add(addClassButton, gbc);
+        panel.add(addButton, gbc);
 
-        JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.setBorder(BorderFactory.createTitledBorder("All Classes"));
-        tableModel = new DefaultTableModel(new Object[]{"Class ID", "Class Name", "Section"}, 0);
-        classTable = new JTable(tableModel);
-        JScrollPane tableScrollPane = new JScrollPane(classTable);
-        tablePanel.add(tableScrollPane, BorderLayout.CENTER);
+        addButton.addActionListener(e -> {
+            String name = classNameField.getText().trim();
+            String section = sectionField.getText().trim();
+            if (!name.isEmpty() && !section.isEmpty()) {
+                boolean success = ClassDAO.addClass(name, section);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Class added.");
+                    classNameField.setText("");
+                    sectionField.setText("");
+                    loadClasses();
+                }
+            }
+        });
 
-        // Subject Assignment Panel
-        JPanel assignPanel = new JPanel(new GridBagLayout());
-        assignPanel.setBorder(BorderFactory.createTitledBorder("Assign Subject to Class"));
-        GridBagConstraints assignGbc = new GridBagConstraints();
-        assignGbc.insets = new Insets(5, 5, 5, 5);
-        assignGbc.fill = GridBagConstraints.HORIZONTAL;
+        return panel;
+    }
 
+    private JPanel createSubjectFormPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setBorder(BorderFactory.createTitledBorder("Add New Subject"));
+
+        subjectNameField = new JTextField(20);
+        JButton addSubjectButton = new JButton("Add Subject");
+
+        panel.add(new JLabel("Subject Name:"));
+        panel.add(subjectNameField);
+        panel.add(addSubjectButton);
+
+        addSubjectButton.addActionListener(e -> {
+            String subjectName = subjectNameField.getText().trim();
+            if (!subjectName.isEmpty()) {
+                boolean added = new SubjectDAO().addSubject(subjectName);
+                if (added) {
+                    JOptionPane.showMessageDialog(this, "Subject added.");
+                    subjectNameField.setText("");
+                    loadSubjects();
+                }
+            }
+        });
+
+        return panel;
+    }
+
+    private JPanel createAssignSubjectsPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createTitledBorder("Assign Subjects to Class"));
+
+        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         classComboBox = new JComboBox<>();
-        subjectComboBox = new JComboBox<>();
-        JButton assignButton = new JButton("Assign Subject");
+        topRow.add(new JLabel("Select Class:"));
+        topRow.add(classComboBox);
 
-        assignGbc.gridx = 0;
-        assignGbc.gridy = 0;
-        assignPanel.add(new JLabel("Select Class:"), assignGbc);
-        assignGbc.gridx = 1;
-        assignPanel.add(classComboBox, assignGbc);
+        subjectCheckboxPanel = new JPanel();
+        subjectCheckboxPanel.setLayout(new BoxLayout(subjectCheckboxPanel, BoxLayout.Y_AXIS));
 
-        assignGbc.gridx = 0;
-        assignGbc.gridy = 1;
-        assignPanel.add(new JLabel("Select Subject:"), assignGbc);
-        assignGbc.gridx = 1;
-        assignPanel.add(subjectComboBox, assignGbc);
+        JButton assignButton = new JButton("Assign Selected Subjects");
 
-        assignGbc.gridx = 1;
-        assignGbc.gridy = 2;
-        assignPanel.add(assignButton, assignGbc);
+        panel.add(topRow);
+        panel.add(subjectCheckboxPanel);
+        panel.add(assignButton);
 
-        JPanel verticalPanel = new JPanel();
-        verticalPanel.setLayout(new BoxLayout(verticalPanel, BoxLayout.Y_AXIS));
-        verticalPanel.add(formPanel);
-        verticalPanel.add(Box.createVerticalStrut(20));
-        verticalPanel.add(tablePanel);
-        verticalPanel.add(Box.createVerticalStrut(20));
-        verticalPanel.add(assignPanel);
+        assignButton.addActionListener((ActionEvent e) -> {
+            ClassItem selectedClass = (ClassItem) classComboBox.getSelectedItem();
+            if (selectedClass == null) return;
 
-        JScrollPane scrollPane = new JScrollPane(verticalPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        add(scrollPane, BorderLayout.CENTER);
+            List<Integer> selectedSubjectIds = subjectCheckboxPanel.getComponents().length > 0 ?
+                    SubjectDAO.getSelectedSubjectIds(subjectCheckboxPanel) : null;
 
-        addClassButton.addActionListener(e -> addClass());
+            if (selectedSubjectIds != null && !selectedSubjectIds.isEmpty()) {
+                boolean success = SubjectDAO.assignSubjectsToClass(selectedClass.getId(), selectedSubjectIds);
+                JOptionPane.showMessageDialog(this, success ? "Subjects assigned." : "Failed to assign.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select at least one subject.");
+            }
+        });
 
-        assignButton.addActionListener(e -> assignSubjectToClass());
+        return panel;
+    }
 
-        loadClasses();
-        loadClassDropdown();
-        loadSubjects();
+    private JPanel createClassTablePanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Existing Classes"));
+
+        classTableModel = new DefaultTableModel(new Object[]{"ID", "Class", "Section"}, 0);
+        JTable table = new JTable(classTableModel);
+        table.setPreferredScrollableViewportSize(new Dimension(400, 100));
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        return panel;
     }
 
     private void loadClasses() {
         List<ClassItem> classes = ClassDAO.getAllClasses();
-        tableModel.setRowCount(0);
-        for (ClassItem c : classes) {
-            tableModel.addRow(new Object[]{c.getId(), c.getClassName(), c.getSection()});
-        }
-    }
-
-    private void loadClassDropdown() {
-        List<ClassItem> classes = ClassDAO.getAllClasses();
         classComboBox.removeAllItems();
+        classTableModel.setRowCount(0);
         for (ClassItem c : classes) {
             classComboBox.addItem(c);
+            classTableModel.addRow(new Object[]{c.getId(), c.getClassName(), c.getSection()});
         }
     }
 
     private void loadSubjects() {
-        List<String> subjects = ClassDAO.getAllSubjectNames();
-        subjectComboBox.removeAllItems();
-        for (String subject : subjects) {
-            subjectComboBox.addItem(subject);
+        List<Subject> subjects = SubjectDAO.getAllSubjects();
+        subjectCheckboxPanel.removeAll();
+        for (Subject s : subjects) {
+            JCheckBox checkbox = new JCheckBox(s.getName());
+            checkbox.setActionCommand(String.valueOf(s.getId()));
+            subjectCheckboxPanel.add(checkbox);
         }
+        subjectCheckboxPanel.revalidate();
+        subjectCheckboxPanel.repaint();
     }
 
-    private void addClass() {
-        String className = classNameField.getText().trim();
-        String section = sectionField.getText().trim();
-
-        if (className.isEmpty() || section.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter both class name and section.");
-            return;
-        }
-
-        boolean success = ClassDAO.addClass(className, section);
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Class added successfully.");
-            loadClasses();
-            loadClassDropdown();
-            classNameField.setText("");
-            sectionField.setText("");
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to add class.");
-        }
-    }
-
-    private void assignSubjectToClass() {
-        ClassItem selectedClass = (ClassItem) classComboBox.getSelectedItem();
-        String selectedSubject = (String) subjectComboBox.getSelectedItem();
-
-        if (selectedClass != null && selectedSubject != null) {
-            boolean success = ClassDAO.assignSubjectToClass(selectedClass.getId(), selectedSubject);
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Subject assigned successfully.");
-            } else {
-                JOptionPane.showMessageDialog(this, "Assignment failed or already exists.");
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select both a class and a subject.");
-        }
+    // Main method for testing
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test ManageClassesSubjectsPanel");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setContentPane(new ManageClassesSubjectsPanel());
+            frame.setSize(800, 700);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
     }
 }

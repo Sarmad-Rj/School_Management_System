@@ -73,7 +73,7 @@ public class VPDashboard extends JFrame {
                             new RegisterTeacherForm().setVisible(true);
                             break;
                         case "Worker":
-                            JOptionPane.showMessageDialog(this, "Worker registration coming soon!");
+                            new RegisterWorkerForm().setVisible(true);
                             break;
                     }
                     break;

@@ -2,25 +2,13 @@ package models;
 
 public class Subject {
     private int id;
-    private String subjectName;
+    private String name;
 
-    public Subject(int id, String subjectName) {
+    public Subject(int id, String name) {
         this.id = id;
-        this.subjectName = subjectName;
+        this.name = name;
     }
 
-    // getters and setters
-
-    @Override
-    public String toString() {
-        return subjectName;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getSubjectName() {
-        return subjectName;
-    }
+    public int getId() { return id; }
+    public String getName() { return name; }
 }

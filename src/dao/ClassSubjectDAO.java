@@ -2,19 +2,53 @@ package dao;
 
 import db.DBConnection;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ClassSubjectDAO {
 
-    public static List<Integer> getSubjectIdsForClass(int classId) {
-        List<Integer> subjectIds = new ArrayList<>();
-        String sql = "SELECT subject_id FROM class_subjects WHERE class_id = ?";
+    public static void assignSubjectToClass(int classId, int subjectId) {
+        String sql = "MERGE INTO class_subjects cs " +
+                "USING dual ON (cs.class_id = ? AND cs.subject_id = ?) " +
+                "WHEN NOT MATCHED THEN INSERT (class_id, subject_id) VALUES (?, ?)";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, classId);
-            ResultSet rs = ps.executeQuery();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, classId);
+            stmt.setInt(2, subjectId);
+            stmt.setInt(3, classId);
+            stmt.setInt(4, subjectId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeSubjectFromClass(int classId, int subjectId) {
+        String sql = "DELETE FROM class_subjects WHERE class_id = ? AND subject_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, classId);
+            stmt.setInt(2, subjectId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Set<Integer> getSubjectIdsByClass(int classId) {
+        Set<Integer> subjectIds = new HashSet<>();
+        String sql = "SELECT subject_id FROM class_subjects WHERE class_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, classId);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 subjectIds.add(rs.getInt("subject_id"));
             }
@@ -24,35 +58,15 @@ public class ClassSubjectDAO {
         return subjectIds;
     }
 
-    public static boolean assignSubjectToClass(int classId, int subjectId) {
-        String sql = "INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)";
+    public static void removeAllSubjectsFromClass(int classId) {
+        String sql = "DELETE FROM class_subjects WHERE class_id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, classId);
-            ps.setInt(2, subjectId);
-            return ps.executeUpdate() > 0;
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, classId);
+            stmt.executeUpdate();
         } catch (SQLException e) {
-            // handle unique constraint violation for duplicate assignment
-            if (e.getErrorCode() == 1) { // Oracle unique constraint violation code
-                System.out.println("Subject already assigned to this class");
-            }
-            else {
-                e.printStackTrace();
-            }
-            return false;
+            e.printStackTrace();
         }
     }
 
-    public static boolean removeSubjectFromClass(int classId, int subjectId) {
-        String sql = "DELETE FROM class_subjects WHERE class_id = ? AND subject_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, classId);
-            ps.setInt(2, subjectId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }

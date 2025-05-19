@@ -3,35 +3,79 @@ package dao;
 import models.Subject;
 import db.DBConnection;
 
+import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
 
 public class SubjectDAO {
-    public static List<Subject> getAllSubjects() {
-        List<Subject> subjects = new ArrayList<>();
+    public boolean addSubject(String subjectName) {
+        String checkSql = "SELECT COUNT(*) FROM subjects WHERE LOWER(subject_name) = LOWER(?)";
+        String insertSql = "INSERT INTO subjects (subject_name) VALUES (?)";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT subject_id, subject_name FROM subjects ORDER BY subject_name")) {
-            ResultSet rs = ps.executeQuery();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+
+            checkStmt.setString(1, subjectName);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                System.out.println("Subject already exists.");
+                return false; // Don't insert duplicate
+            }
+
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setString(1, subjectName);
+                insertStmt.executeUpdate();
+                return true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public static List<Subject> getAllSubjects() {
+        List<Subject> list = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM subjects";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
-                Subject s = new Subject(rs.getInt("subject_id"), rs.getString("subject_name"));
-                subjects.add(s);
+                list.add(new Subject(rs.getInt("subject_id"), rs.getString("subject_name")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return subjects;
+        return list;
     }
 
-    public static boolean addSubject(String subjectName) {
-        String sql = "INSERT INTO subjects (subject_name) VALUES (?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, subjectName);
-            return ps.executeUpdate() > 0;
+    public static List<Integer> getSelectedSubjectIds(JPanel checkboxPanel) {
+        List<Integer> ids = new ArrayList<>();
+        for (Component comp : checkboxPanel.getComponents()) {
+            if (comp instanceof JCheckBox checkbox && checkbox.isSelected()) {
+                ids.add(Integer.parseInt(checkbox.getActionCommand()));
+            }
+        }
+        return ids;
+    }
+
+    public static boolean assignSubjectsToClass(int classId, List<Integer> subjectIds) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            for (int subjectId : subjectIds) {
+                stmt.setInt(1, classId);
+                stmt.setInt(2, subjectId);
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 }
