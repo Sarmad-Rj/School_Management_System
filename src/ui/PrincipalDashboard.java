@@ -1,4 +1,6 @@
 package ui;
 
-public class PrincipalDashboard {
+import javax.swing.*;
+
+public class PrincipalDashboard extends JFrame {
 }

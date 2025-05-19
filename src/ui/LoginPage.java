@@ -1,5 +1,10 @@
 package ui;
 
+import dao.TeacherDAO;
+import dao.UserDAO;
+import models.Teacher;
+import models.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -58,15 +63,7 @@ public class LoginPage extends JFrame {
         add(loginButton, gbc);
 
         // Event Handling
-        roleComboBox.addActionListener(this::onRoleChange);
         loginButton.addActionListener(this::onLoginClick);
-
-        onRoleChange(null); // Set initial visibility based on selected role
-    }
-
-    private void onRoleChange(ActionEvent e) {
-        String role = (String) roleComboBox.getSelectedItem();
-        usernameField.setEnabled(role.equals("Teacher"));
     }
 
     private void onLoginClick(ActionEvent e) {
@@ -74,33 +71,41 @@ public class LoginPage extends JFrame {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
 
-        switch (role) {
-            case "Principal":
-                if ("PClouds".equals(password)) {
-                    JOptionPane.showMessageDialog(this, "Principal login successful!");
-                    // open principal dashboard
-                } else {
-                    JOptionPane.showMessageDialog(this, "Invalid password for Principal.");
-                }
-                break;
-            case "Vice Principal":
-                if ("VPClouds".equals(password)) {
-                    JOptionPane.showMessageDialog(this, "VP login successful!");
-                    new VPDashboard().setVisible(true);
-                    this.dispose(); // close login page
-                } else {
-                    JOptionPane.showMessageDialog(this, "Invalid password for VP.");
-                }
-                break;
-            case "Teacher":
-                // TODO: validate from DB later
-                if (!username.isEmpty() && !password.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Teacher login successful!");
-                    // open teacher dashboard
-                } else {
-                    JOptionPane.showMessageDialog(this, "Invalid credentials for Teacher.");
-                }
-                break;
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+            return;
         }
+
+        User user = UserDAO.validateLogin(username, password, role);
+
+        if (user != null) {
+            switch (role) {
+                case "Principal" -> {
+                    JOptionPane.showMessageDialog(this, "Principal login successful!");
+                    new PrincipalDashboard().setVisible(true);
+                }
+                case "Vice Principal" -> {
+                    JOptionPane.showMessageDialog(this, "Vice Principal login successful!");
+                    new VPDashboard().setVisible(true);
+                }
+                case "Teacher" -> {
+                    Teacher teacher = TeacherDAO.getTeacherByUsername(username);
+                    if (teacher != null) {
+                        JOptionPane.showMessageDialog(this, "Teacher login successful!");
+                        new TeacherDashboard(teacher).setVisible(true);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Teacher details not found in teachers table.");
+                        return;
+                    }
+                }
+            }
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username, password, or role.");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new LoginPage().setVisible(true));
     }
 }
