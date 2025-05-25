@@ -78,4 +78,18 @@ public class SubjectDAO {
         }
         return false;
     }
+
+    public static boolean isSubjectAssignedToClass(int classId, int subjectId) {
+        String sql = "SELECT 1 FROM class_subjects WHERE class_id = ? AND subject_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, classId);
+            stmt.setInt(2, subjectId);
+            return stmt.executeQuery().next();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

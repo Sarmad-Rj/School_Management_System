@@ -8,8 +8,9 @@ public class Teacher {
     private String password;
     private String email;
     private String contact;
+    private String cnic;
 
-    public Teacher(String name, String subject, String assignedClass, String username, String password, String email, String contact) {
+    public Teacher(String name, String subject, String assignedClass, String username, String password, String email, String contact, String cnic) {
         this.name = name;
         this.subject = subject;
         this.assignedClass = assignedClass;
@@ -17,7 +18,9 @@ public class Teacher {
         this.password = password;
         this.email = email;
         this.contact = contact;
+        this.cnic = cnic;
     }
+
 
     // Getters
     public String getName() { return name; }
@@ -27,5 +30,8 @@ public class Teacher {
     public String getPassword() { return password; }
     public String getEmail() { return email; }
     public String getContact() { return contact; }
+    public String getCnic() {
+        return cnic;
+    }
 
 }

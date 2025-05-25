@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class TeacherDAO {
 
     public static boolean registerTeacher(Teacher teacher) {
-        String insertTeacher = "INSERT INTO teachers (name, subject, assigned_class, username, password, email, contact) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String insertTeacher = "INSERT INTO teachers (name, subject, assigned_class, username, password, email, contact, cnic) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         String insertUser = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
@@ -26,6 +26,7 @@ public class TeacherDAO {
             stmt1.setString(5, teacher.getPassword());
             stmt1.setString(6, teacher.getEmail());
             stmt1.setString(7, teacher.getContact());
+            stmt1.setString(8, teacher.getCnic());
             stmt1.executeUpdate();
 
             // Insert into users table
@@ -41,7 +42,6 @@ public class TeacherDAO {
             return false;
         }
     }
-
 
     public static Teacher getTeacherByUsername(String username) {
         String sql = "SELECT * FROM teachers WHERE username = ?";
@@ -60,7 +60,8 @@ public class TeacherDAO {
                         rs.getString("username"),
                         rs.getString("password"),
                         rs.getString("email"),
-                        rs.getString("contact")
+                        rs.getString("contact"),
+                        rs.getString("cnic")
                 );
             }
         } catch (SQLException e) {
@@ -68,6 +69,7 @@ public class TeacherDAO {
         }
         return null;
     }
+
     public static String getUsernameByEmail(String email) {
         String sql = "SELECT username FROM teachers WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -82,5 +84,4 @@ public class TeacherDAO {
         }
         return null;
     }
-
 }

@@ -15,60 +15,120 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class LoginPage extends JFrame {
-    private JComboBox<String> roleComboBox;
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButton;
-    private JButton forgotButton;
+    private final JTextField usernameField;
+    private final JPasswordField passwordField;
+    private final JComboBox<String> roleComboBox;
+    private final JButton loginButton;
+    private final JButton forgotButton;
+
+    // Theme colors
+    private final Color ORANGE = new Color(255, 87, 34); // deep orange
+    private final Color BLACK = new Color(25, 25, 25);
+    private final Color WHITE = Color.WHITE;
 
     public LoginPage() {
-        setTitle("School Management System - Login");
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("School Management - Login");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(500, 350);
         setLocationRelativeTo(null);
-        setLayout(new GridBagLayout());
+        setResizable(false);
 
+        // Main panel
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(BLACK);
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10,10,10,10);
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        // Font
+        Font font = new Font("Segoe UI", Font.PLAIN, 16);
+
+        JLabel title = new JLabel("Login to School System");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        title.setForeground(ORANGE);
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridwidth = 2;
         gbc.gridx = 0; gbc.gridy = 0;
-        add(new JLabel("Login as:"), gbc);
-        gbc.gridx = 1;
-        roleComboBox = new JComboBox<>(new String[]{"Principal", "Vice Principal", "Teacher"});
-        add(roleComboBox, gbc);
+        panel.add(title, gbc);
+        gbc.gridwidth = 1;
 
+        // Role
+        JLabel roleLabel = createLabel("Role:");
         gbc.gridx = 0; gbc.gridy = 1;
-        add(new JLabel("Username:"), gbc);
-        gbc.gridx = 1;
-        usernameField = new JTextField(15);
-        add(usernameField, gbc);
+        panel.add(roleLabel, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 2;
-        add(new JLabel("Password:"), gbc);
+        roleComboBox = new JComboBox<>(new String[]{"Principal", "Vice Principal", "Teacher"});
+        styleField(roleComboBox);
         gbc.gridx = 1;
+        panel.add(roleComboBox, gbc);
+
+        // Username
+        JLabel userLabel = createLabel("Username:");
+        gbc.gridx = 0; gbc.gridy = 2;
+        panel.add(userLabel, gbc);
+
+        usernameField = new JTextField(15);
+        styleField(usernameField);
+        gbc.gridx = 1;
+        panel.add(usernameField, gbc);
+
+        // Password
+        JLabel passLabel = createLabel("Password:");
+        gbc.gridx = 0; gbc.gridy = 3;
+        panel.add(passLabel, gbc);
+
         passwordField = new JPasswordField(15);
-        add(passwordField, gbc);
+        styleField(passwordField);
+        gbc.gridx = 1;
+        panel.add(passwordField, gbc);
 
         // Login button
-        gbc.gridx = 1; gbc.gridy = 3;
         loginButton = new JButton("Login");
-        add(loginButton, gbc);
+        styleButton(loginButton);
+        gbc.gridx = 1; gbc.gridy = 4;
+        panel.add(loginButton, gbc);
 
-        // Forgot Password button
-        gbc.gridy = 4;
+        // Forgot button
         forgotButton = new JButton("Forgot Password?");
-        forgotButton.setBorderPainted(false);
+        forgotButton.setForeground(ORANGE);
+        forgotButton.setFont(font);
         forgotButton.setContentAreaFilled(false);
-        forgotButton.setForeground(Color.BLUE.darker());
+        forgotButton.setBorderPainted(false);
+        forgotButton.setFocusPainted(false);
         forgotButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        add(forgotButton, gbc);
+        gbc.gridy = 5;
+        panel.add(forgotButton, gbc);
 
-        // Event handlers
+        add(panel);
+
         loginButton.addActionListener(this::onLoginClick);
         forgotButton.addActionListener(e -> onForgotPassword());
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setForeground(WHITE);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        return label;
+    }
+
+    private void styleField(JComponent comp) {
+        comp.setBackground(Color.DARK_GRAY);
+        comp.setForeground(WHITE);
+        comp.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        comp.setBorder(BorderFactory.createLineBorder(ORANGE, 1));
+    }
+
+    private void styleButton(JButton button) {
+        button.setBackground(ORANGE);
+        button.setForeground(WHITE);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
     private void onLoginClick(ActionEvent e) {
@@ -118,12 +178,12 @@ public class LoginPage extends JFrame {
         );
         if (email == null || email.trim().isEmpty()) return;
 
-        String token = String.format("%06d", (int)(Math.random() * 1_000_000));
+        String token = String.format("%06d", (int) (Math.random() * 1_000_000));
         LocalDateTime expiry = LocalDateTime.now().plusHours(1);
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "INSERT INTO password_resets(email,token,expiry_time) VALUES (?,?,?)"
+                     "INSERT INTO password_resets(email, token, expiry_time) VALUES (?, ?, ?)"
              )) {
             ps.setString(1, email);
             ps.setString(2, token);
@@ -134,9 +194,9 @@ public class LoginPage extends JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "A reset 6-digit code has been sent to your email.\n" +
-                            "Please check your inbox and then enter it in the next screen.",
-                    "6-digit code Sent",
+                    "A 6-digit reset code has been sent to your email.\n" +
+                            "Please enter it in the next screen to reset your password.",
+                    "Reset Code Sent",
                     JOptionPane.INFORMATION_MESSAGE
             );
 
@@ -146,7 +206,7 @@ public class LoginPage extends JFrame {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(
                     this,
-                    "Unable to send reset 6-digit code: " + ex.getMessage(),
+                    "Failed to send reset code: " + ex.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
