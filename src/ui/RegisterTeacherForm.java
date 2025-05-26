@@ -51,10 +51,13 @@ public class RegisterTeacherForm extends JFrame {
         panelAdd(formPanel, gbc, new JLabel("Contact:"), contactField, y++);
         panelAdd(formPanel, gbc, new JLabel("CNIC:"), cnicField, y++);
 
-
-        formPanel.add(new JLabel("Assign Subjects:"), gbc);
-        gbc.gridy++;
+        gbc.gridy = y;
+        gbc.gridx = 0;
         gbc.gridwidth = 2;
+        formPanel.add(new JLabel("Assign Subjects:"), gbc);
+
+        gbc.gridy++;
+
         checkboxPanel = new JPanel();
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(checkboxPanel);
@@ -95,6 +98,9 @@ public class RegisterTeacherForm extends JFrame {
                 }
             }
         }
+
+        checkboxPanel.revalidate();
+        checkboxPanel.repaint();
     }
 
     private void registerTeacher() {
@@ -130,6 +136,6 @@ public class RegisterTeacherForm extends JFrame {
     }
 
     public static void main(String[] args) {
-        new RegisterTeacherForm();
+        SwingUtilities.invokeLater(RegisterTeacherForm::new);
     }
 }

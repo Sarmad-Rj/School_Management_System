@@ -122,7 +122,7 @@ public class ManageClassesSubjectsPanel extends JPanel {
 
     private JPanel createAssignSubjectsPanel() {
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Main panel still vertically oriented
         panel.setBorder(BorderFactory.createTitledBorder("Assign Subjects to Class"));
 
         JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -130,21 +130,23 @@ public class ManageClassesSubjectsPanel extends JPanel {
         topRow.add(new JLabel("Select Class:"));
         topRow.add(classComboBox);
 
-        subjectCheckboxPanel = new JPanel();
-        subjectCheckboxPanel.setLayout(new BoxLayout(subjectCheckboxPanel, BoxLayout.Y_AXIS));
+        subjectCheckboxPanel = new JPanel(new GridLayout(0, 4, 10, 5)); // 0 rows, 4 columns, 10px horizontal gap, 5px vertical gap
+
+        JScrollPane scrollPane = new JScrollPane(subjectCheckboxPanel);
+        scrollPane.setPreferredSize(new Dimension(600, 200)); // Adjust preferred size as needed
 
         JButton assignButton = new JButton("Assign Selected Subjects");
 
         panel.add(topRow);
-        panel.add(subjectCheckboxPanel);
+        panel.add(scrollPane); // Add the scroll pane containing the checkboxes
         panel.add(assignButton);
 
         assignButton.addActionListener((ActionEvent e) -> {
             ClassItem selectedClass = (ClassItem) classComboBox.getSelectedItem();
             if (selectedClass == null) return;
 
-            List<Integer> selectedSubjectIds = subjectCheckboxPanel.getComponents().length > 0 ?
-                    SubjectDAO.getSelectedSubjectIds(subjectCheckboxPanel) : null;
+            // Ensure this method correctly extracts selected subjects from the new layout
+            List<Integer> selectedSubjectIds = SubjectDAO.getSelectedSubjectIds(subjectCheckboxPanel);
 
             if (selectedSubjectIds != null && !selectedSubjectIds.isEmpty()) {
                 boolean success = SubjectDAO.assignSubjectsToClass(selectedClass.getId(), selectedSubjectIds);

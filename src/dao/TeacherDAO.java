@@ -2,11 +2,14 @@ package dao;
 
 import db.DBConnection;
 import models.Teacher;
+import models.TeacherAssignment;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TeacherDAO {
 
@@ -84,4 +87,36 @@ public class TeacherDAO {
         }
         return null;
     }
+    public static List<TeacherAssignment> getAssignmentsByUsername(String username) {
+        List<TeacherAssignment> list = new ArrayList<>();
+
+        String sql = """
+        SELECT c.class_name, s.subject_name
+        FROM teacher_assignments ta
+        JOIN classes c ON ta.class_id = c.class_id
+        JOIN subjects s ON ta.subject_id = s.subject_id
+        WHERE ta.teacher_username = ?
+    """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String className = rs.getString("class_name");
+                String subjectName = rs.getString("subject_name");
+                list.add(new TeacherAssignment(className, subjectName));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+
+
 }
