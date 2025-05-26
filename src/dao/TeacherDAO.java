@@ -116,7 +116,33 @@ public class TeacherDAO {
 
         return list;
     }
+    public static List<Teacher> getAllTeachers() {
+        List<Teacher> list = new ArrayList<>();
+        String sql = "SELECT * FROM teachers";
 
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
+            while (rs.next()) {
+                Teacher t = new Teacher(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("subject"),
+                        rs.getString("assigned_class"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getString("contact"),
+                        rs.getString("cnic")
+                );
+                list.add(t);
+            }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 }

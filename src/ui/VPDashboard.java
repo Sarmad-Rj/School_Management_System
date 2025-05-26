@@ -1,4 +1,3 @@
-// ui/VPDashboard.java
 package ui;
 
 import javax.swing.*;
@@ -36,7 +35,7 @@ public class VPDashboard extends JFrame {
         cardPanel.add(createCard("Manage Classes & Subjects", "Add classes, sections & assign subjects"));
         cardPanel.add(createCard("School Details", "View all student/teacher/worker data"));
         JPanel emptyPanel = new JPanel();
-        emptyPanel.setOpaque(false); // make it fully transparent
+        emptyPanel.setOpaque(false);
         cardPanel.add(emptyPanel);
 
         JButton logoutButton = new JButton("Logout");
@@ -121,7 +120,12 @@ public class VPDashboard extends JFrame {
                 break;
 
             case "School Details":
-                JOptionPane.showMessageDialog(this, "School Details functionality coming soon!");
+                JFrame schoolFrame = new JFrame("School Details");
+                schoolFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                schoolFrame.setSize(1000, 700);
+                schoolFrame.setLocationRelativeTo(this);
+                schoolFrame.setContentPane(new SchoolDetailsPanel());
+                schoolFrame.setVisible(true);
                 break;
 
             default:

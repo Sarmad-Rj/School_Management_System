@@ -74,5 +74,22 @@ public class ClassDAO {
         return subjects;
     }
 
-    // Add update and delete methods similarly if needed
+    public static ClassItem getClassById(int classId) {
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM classes WHERE class_id = ?")) {
+            stmt.setInt(1, classId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new ClassItem(
+                        rs.getInt("class_id"),
+                        rs.getString("class_name"),
+                        rs.getString("section")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

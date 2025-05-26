@@ -63,7 +63,7 @@ public class TeacherDashboard extends JFrame {
         logoutBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
         logoutBtn.addActionListener(e -> {
-            dispose(); // Close current dashboard
+            dispose();
             SwingUtilities.invokeLater(() -> new LoginPage().setVisible(true)); // Open login page again
         });
 
