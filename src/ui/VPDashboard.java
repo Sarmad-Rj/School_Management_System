@@ -1,11 +1,25 @@
 package ui;
 
+import theme.UITheme;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 public class VPDashboard extends JFrame {
+
+    private final Map<String, String> iconMap = new HashMap<>() {{
+        put("Register", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Register.png");
+        put("Financial Record", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Financial Record.png");
+        put("Staff Attendance", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Staff Attendance.png");
+        put("Time Table Management", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Time Table Management.png");
+        put("Notifications", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Notifications.png");
+        put("Manage Classes & Subjects", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Manage Classes & Subjects.png");
+        put("School Details", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\School Details.png");
+    }};
 
     public VPDashboard() {
         setTitle("Vice Principal Dashboard");
@@ -14,6 +28,7 @@ public class VPDashboard extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         getContentPane().setBackground(UITheme.LIGHT_GRAY);
+        UITheme.applyFrameDefaults(this);
 
         // Header
         JLabel header = UITheme.createTitleLabel("Vice Principal Dashboard");
@@ -32,7 +47,7 @@ public class VPDashboard extends JFrame {
         cardPanel.add(createCard("Notifications", "Send and receive messages"));
         cardPanel.add(createCard("Manage Classes & Subjects", "Add classes, sections & assign subjects"));
         cardPanel.add(createCard("School Details", "View all student/teacher/worker data"));
-        cardPanel.add(new JPanel()); // empty placeholder
+        cardPanel.add(new JPanel());
 
         add(cardPanel, BorderLayout.CENTER);
 
@@ -57,18 +72,28 @@ public class VPDashboard extends JFrame {
 
     private JPanel createCard(String title, String description) {
         JPanel card = new JPanel(new BorderLayout(10, 10));
-        card.setPreferredSize(new Dimension(220, 130));
+        card.setPreferredSize(new Dimension(220, 160));
         card.setBackground(UITheme.WHITE);
         card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         card.setBorder(UITheme.getRoundedOrangeBorder());
 
-        JLabel descLabel = new JLabel("<html><div style='text-align:center;'>" + description + "</div></html>", SwingConstants.CENTER);
-        descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JLabel iconLabel = new JLabel();
+        String iconPath = iconMap.get(title);
+        if (iconPath != null) {
+            ImageIcon icon = new ImageIcon(iconPath);
+            Image scaledIcon = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+            iconLabel.setIcon(new ImageIcon(scaledIcon));
+        }
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JLabel descLabel = new JLabel("<html><div style='text-align:center;'><b>" + title + "</b><br>" + description + "</div></html>", SwingConstants.CENTER);
+        descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
         JButton openButton = new JButton("Open");
         UITheme.stylePrimaryButton(openButton);
         openButton.setPreferredSize(new Dimension(90, 30));
 
+        card.add(iconLabel, BorderLayout.NORTH);
         card.add(descLabel, BorderLayout.CENTER);
         card.add(openButton, BorderLayout.SOUTH);
 

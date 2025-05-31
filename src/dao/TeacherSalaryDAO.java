@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class TeacherSalaryDAO {
 
-    // Auto-ensure entries for current month
     public static void ensureCurrentMonthEntries() {
         String sql = "SELECT id FROM teachers";
 
@@ -66,16 +65,17 @@ public class TeacherSalaryDAO {
         String sql = "SELECT teacher_id, paid_status FROM teacher_salaries WHERE month = ? AND year = ?";
 
         LocalDate now = LocalDate.now();
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, now.getMonthValue());
             stmt.setInt(2, now.getYear());
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                map.put(rs.getInt("teacher_id"), rs.getString("paid_status"));
+                map.put(rs.getInt("teacher_id"), rs.getString("paid_status")); // Only "Yes" or "No"
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -84,8 +84,7 @@ public class TeacherSalaryDAO {
 
     public static void markAsPaid(int teacherId) {
         LocalDate now = LocalDate.now();
-        String sql = "UPDATE teacher_salaries SET paid_status = 'Yes' WHERE teacher_id = ? AND month = ? AND year = ?";
-
+        String sql = "UPDATE teacher_salaries SET paid_status = 'Yes', paid_date = SYSDATE WHERE teacher_id = ? AND month = ? AND year = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, teacherId);
@@ -96,4 +95,28 @@ public class TeacherSalaryDAO {
             e.printStackTrace();
         }
     }
+
+    public static Map<Integer, String> getPaidDates() {
+        Map<Integer, String> map = new HashMap<>();
+        String sql = "SELECT teacher_id, TO_CHAR(paid_date, 'DD-Mon-YYYY') AS paid_date FROM teacher_salaries WHERE month = ? AND year = ?";
+
+        LocalDate now = LocalDate.now();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, now.getMonthValue());
+            stmt.setInt(2, now.getYear());
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getInt("teacher_id"), rs.getString("paid_date"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return map;
+    }
+
 }

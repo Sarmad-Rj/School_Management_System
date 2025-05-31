@@ -3,6 +3,7 @@ package ui;
 import dao.AttendanceDAO;
 import dao.StudentDAO;
 import models.Student;
+import theme.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,41 +23,57 @@ public class UploadAttendancePanel extends JPanel {
         this.classId = classId;
 
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBackground(UITheme.LIGHT_GRAY); // Maintain theme
 
         // Top date selector
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topPanel.setBackground(UITheme.WHITE);
         topPanel.add(new JLabel("Select Date (yyyy-MM-dd):"));
 
         dateField = new JTextField(10);
-        dateField.setText(LocalDate.now().toString()); // Default to today's date
+        dateField.setText(LocalDate.now().toString());
         dateField.setToolTipText("Format: YYYY-MM-DD");
         topPanel.add(dateField);
         add(topPanel, BorderLayout.NORTH);
 
-        // Center: student list with checkboxes
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        // Center: Student list with checkboxes (organized layout)
+        JPanel centerPanel = new JPanel(new GridBagLayout()); // Better alignment
+        centerPanel.setBackground(UITheme.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 10, 5, 10);
 
         List<Student> students = StudentDAO.getStudentsByClassId(classId);
+        int row = 0;
         for (Student s : students) {
-            JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            gbc.gridx = 0;
+            gbc.gridy = row;
+            gbc.weightx = 1.0;
             JLabel nameLabel = new JLabel(s.getName());
-            JCheckBox presentBox = new JCheckBox("Present");
+            nameLabel.setFont(UITheme.DEFAULT_FONT);
+            centerPanel.add(nameLabel, gbc);
 
-            row.add(nameLabel);
-            row.add(presentBox);
-            centerPanel.add(row);
+            gbc.gridx = 1;
+            gbc.weightx = 0;
+            JCheckBox presentBox = new JCheckBox("Present");
+            centerPanel.add(presentBox, gbc);
 
             presentMap.put(s.getId(), presentBox);
+            row++;
         }
 
         JScrollPane scrollPane = new JScrollPane(centerPanel);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Submit button
+        // Submit Button
+        UITheme.stylePrimaryButton(submitButton);
         submitButton.addActionListener(e -> handleSubmit());
-        add(submitButton, BorderLayout.SOUTH);
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setBackground(UITheme.LIGHT_GRAY);
+        bottomPanel.add(submitButton);
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
     private void handleSubmit() {

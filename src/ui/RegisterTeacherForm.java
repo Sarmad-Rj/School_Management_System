@@ -7,6 +7,7 @@ import dao.TeacherAssignmentDAO;
 import models.ClassItem;
 import models.Subject;
 import models.Teacher;
+import theme.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +28,8 @@ public class RegisterTeacherForm extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        UITheme.applyFrameDefaults(this);
+
 
         JPanel panel = new JPanel(new BorderLayout());
         JPanel formPanel = new JPanel(new GridBagLayout());

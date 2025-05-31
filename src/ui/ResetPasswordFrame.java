@@ -5,6 +5,7 @@ import dao.PasswordResetDAO;
 import dao.TeacherDAO;
 import dao.UserDAO;
 import db.DBConnection;
+import theme.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +24,7 @@ public class ResetPasswordFrame extends JFrame {
         setSize(400, 300);
         setLocationRelativeTo(null);
         initComponents();
+        UITheme.applyFrameDefaults(this);
     }
 
     private void initComponents() {

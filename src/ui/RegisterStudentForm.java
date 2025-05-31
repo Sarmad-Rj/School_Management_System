@@ -4,6 +4,7 @@ import dao.ClassDAO;
 import dao.StudentDAO;
 import models.ClassItem;
 import models.Student;
+import theme.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +20,8 @@ public class RegisterStudentForm extends JFrame {
         setSize(500, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        UITheme.applyFrameDefaults(this);
+
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));

@@ -8,13 +8,10 @@ import db.DBConnection;
 import models.ClassItem;
 import models.Student;
 import models.TeacherAssignment;
-import ui.ManageClassesSubjectsPanel;
-
+import theme.UITheme;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.*;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,17 +21,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SchoolDetailsPanel extends JPanel {
-    private final Color DARK_BG = new Color(30, 30, 47);
-    private final Color CARD_BG = new Color(42, 42, 64);
-    private final Color ORANGE = new Color(255, 111, 0);
-    private final Color WHITE = Color.WHITE;
-    private final Color GREEN = new Color(76, 175, 80);
-    private final Color RED = new Color(244, 67, 54);
 
     public SchoolDetailsPanel() {
-//        GlobalButtonStyle.applyRoundedStyle();
         setLayout(new BorderLayout());
-        setBackground(DARK_BG);
+        setBackground(UITheme.LIGHT_GRAY);
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -54,16 +44,15 @@ public class SchoolDetailsPanel extends JPanel {
 
         public StudentsInClassPanel() {
             setLayout(new BorderLayout(10, 10));
-            setBackground(DARK_BG);
+            setBackground(UITheme.LIGHT_GRAY);
             setBorder(new EmptyBorder(10, 10, 10, 10));
 
-            // 🔍 Top Search Panel
             JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
-            searchPanel.setBackground(DARK_BG);
+            searchPanel.setBackground(UITheme.LIGHT_GRAY);
             searchField = new JTextField();
-            JButton searchButton = styleButton("Search");
+            JButton searchButton = createButton("Search");
             JLabel searchLabel = new JLabel("🔍 Search Student:");
-            searchLabel.setForeground(WHITE);
+            searchLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
             searchPanel.add(searchLabel, BorderLayout.WEST);
             searchPanel.add(searchField, BorderLayout.CENTER);
             searchPanel.add(searchButton, BorderLayout.EAST);
@@ -71,26 +60,23 @@ public class SchoolDetailsPanel extends JPanel {
 
             add(searchPanel, BorderLayout.NORTH);
 
-            // 👨‍🎓 Total Student Count Label
-            totalStudentsLabel = new JLabel(); // initialize
-            totalStudentsLabel.setForeground(WHITE);
+            totalStudentsLabel = new JLabel();
             totalStudentsLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            totalStudentsLabel.setHorizontalAlignment(SwingConstants.LEFT);
-            add(totalStudentsLabel, BorderLayout.SOUTH); // add to bottom of top section
+            add(totalStudentsLabel, BorderLayout.SOUTH);
 
-            // 📚 Class Card Grid
             classCardsPanel = new JPanel(new GridLayout(0, 4, 15, 15));
-            classCardsPanel.setBackground(DARK_BG);
+            classCardsPanel.setBackground(UITheme.LIGHT_GRAY);
             JScrollPane scrollPane = new JScrollPane(classCardsPanel);
+            scrollPane.setBorder(null);
             add(scrollPane, BorderLayout.CENTER);
 
-            updateStudentCount(); // 👈 Initial load
+            updateStudentCount();
             loadClassCards();
         }
 
         private void updateStudentCount() {
             int total = StudentDAO.getAllStudents().size();
-            totalStudentsLabel.setText("Total Students in School: " + total);
+            totalStudentsLabel.setText("Total Students: " + total);
         }
 
         private void performSearch() {
@@ -109,7 +95,7 @@ public class SchoolDetailsPanel extends JPanel {
             List<ClassItem> classes = ClassDAO.getAllClasses();
 
             for (ClassItem c : classes) {
-                JButton btn = styleButton(c.toString());
+                JButton btn = createButton(c.toString());
                 btn.addActionListener(e -> {
                     List<Student> list = StudentDAO.getStudentsByClassId(c.getId());
                     showStudents(list, "Students in " + c);
@@ -127,50 +113,42 @@ public class SchoolDetailsPanel extends JPanel {
             f.setLocationRelativeTo(this);
             JPanel panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            panel.setBackground(DARK_BG);
+            panel.setBackground(UITheme.LIGHT_GRAY);
 
             for (Student s : students) {
                 JPanel card = new JPanel(new BorderLayout(10, 10));
-                card.setBorder(BorderFactory.createTitledBorder(
-                        new LineBorder(ORANGE, 1), s.getName()));
-                card.setBackground(CARD_BG);
-                card.setMaximumSize(new Dimension(700, 100));
+                card.setBackground(UITheme.WHITE);
+                card.setBorder(UITheme.getRoundedOrangeBorder(s.getName()));
+                card.setMaximumSize(new Dimension(700, 150));
 
                 ClassItem classItem = ClassDAO.getClassById(s.getClassId());
                 String className = (classItem != null) ? classItem.toString() : "Unknown";
 
                 JPanel info = new JPanel(new GridLayout(3, 2));
-                info.setBackground(CARD_BG);
-                info.setForeground(WHITE);
+                info.setBackground(UITheme.WHITE);
                 info.add(new JLabel("Father: " + s.getFatherName()));
                 info.add(new JLabel("Age: " + s.getAge()));
                 info.add(new JLabel("Class: " + className));
 
-                // ✅ Progress bar for attendance
                 JProgressBar attendanceBar = new JProgressBar(0, 100);
                 attendanceBar.setValue((int) s.getAttendancePercentage());
                 attendanceBar.setStringPainted(true);
-                if (s.getAttendancePercentage() >= 75)
-                    attendanceBar.setForeground(GREEN);
-                else if (s.getAttendancePercentage() >= 50)
-                    attendanceBar.setForeground(Color.YELLOW);
-                else
-                    attendanceBar.setForeground(RED);
+                attendanceBar.setForeground(s.getAttendancePercentage() >= 75 ? new Color(76, 175, 80)
+                        : s.getAttendancePercentage() >= 50 ? Color.ORANGE : Color.RED);
+
                 info.add(new JLabel("Attendance:"));
                 info.add(attendanceBar);
 
                 JPanel feePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                feePanel.setBackground(CARD_BG);
+                feePanel.setBackground(UITheme.WHITE);
                 if ("Yes".equalsIgnoreCase(s.getFeePaid())) {
                     JLabel paid = new JLabel("✅ Paid");
-                    paid.setForeground(GREEN);
+                    paid.setForeground(new Color(76, 175, 80));
                     feePanel.add(paid);
                 } else {
                     JCheckBox check = new JCheckBox("Mark Fee as Paid");
-                    check.setBackground(CARD_BG);
-                    check.setForeground(WHITE);
+                    check.setBackground(UITheme.WHITE);
                     feePanel.add(check);
-
                     check.addActionListener(e -> {
                         try (Connection conn = DBConnection.getConnection();
                              PreparedStatement ps = conn.prepareStatement("UPDATE students SET fee_paid = 'Yes' WHERE id = ?")) {
@@ -181,7 +159,7 @@ public class SchoolDetailsPanel extends JPanel {
                         }
                         feePanel.removeAll();
                         JLabel paid = new JLabel("✅ Paid");
-                        paid.setForeground(GREEN);
+                        paid.setForeground(new Color(76, 175, 80));
                         feePanel.add(paid);
                         feePanel.revalidate();
                         feePanel.repaint();
@@ -190,7 +168,6 @@ public class SchoolDetailsPanel extends JPanel {
 
                 card.add(info, BorderLayout.CENTER);
                 card.add(feePanel, BorderLayout.SOUTH);
-                applyLabelColors(card, WHITE);
                 panel.add(card);
                 panel.add(Box.createVerticalStrut(10));
             }
@@ -204,66 +181,63 @@ public class SchoolDetailsPanel extends JPanel {
     class TeacherSalaryPanel extends JPanel {
         public TeacherSalaryPanel() {
             setLayout(new BorderLayout());
-            setBackground(DARK_BG);
+            setBackground(UITheme.LIGHT_GRAY);
             setBorder(new EmptyBorder(10, 10, 10, 10));
 
+            // Ensure DB entries exist for this month
             TeacherSalaryDAO.ensureCurrentMonthEntries();
-            Map<Integer, String> salaryMap = TeacherSalaryDAO.getCurrentSalaryStatus();
+
+            // Get status and date maps
+            Map<Integer, String> statusMap = TeacherSalaryDAO.getCurrentSalaryStatus();
+            Map<Integer, String> dateMap = TeacherSalaryDAO.getPaidDates();
+
             List<models.Teacher> teachers = TeacherDAO.getAllTeachers();
 
             JPanel container = new JPanel();
             container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-            container.setBackground(DARK_BG);
+            container.setBackground(UITheme.LIGHT_GRAY);
 
             for (models.Teacher t : teachers) {
                 JPanel row = new JPanel(new BorderLayout(10, 10));
-                TitledBorder border = BorderFactory.createTitledBorder(new LineBorder(ORANGE), t.getName());
-                border.setTitleColor(WHITE);
-                row.setBorder(border);
+                row.setBackground(UITheme.WHITE);
+                row.setBorder(UITheme.getRoundedOrangeBorder(t.getName()));
                 row.setMaximumSize(new Dimension(700, Integer.MAX_VALUE));
-                row.setBackground(CARD_BG);
 
-                List<TeacherAssignment> assignments = TeacherDAO.getAssignmentsByUsername(t.getUsername());
-                StringBuilder assignmentText = new StringBuilder();
-                for (TeacherAssignment a : assignments) {
-                    assignmentText.append("📘 ")
-                            .append(a.getSubjectName())
-                            .append(" (").append(a.getClassName()).append(")").append("<br>");
-                }
-
-                String displayHtml = assignmentText.isEmpty()
-                        ? "<html>No Assignments</html>"
-                        : "<html>" + assignmentText + "</html>";
-
+                // LEFT: Info & Assignments
                 JPanel leftPanel = new JPanel();
                 leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
                 leftPanel.setOpaque(false);
-                leftPanel.add(new JLabel(displayHtml));
                 leftPanel.add(new JLabel("📞 " + t.getContact()));
                 leftPanel.add(new JLabel("💳 " + t.getCnic()));
 
-                for (Component c : leftPanel.getComponents()) {
-                    c.setForeground(WHITE);
+                List<TeacherAssignment> assignments = TeacherDAO.getAssignmentsByUsername(t.getUsername());
+                for (TeacherAssignment a : assignments) {
+                    leftPanel.add(new JLabel("📘 " + a.getSubjectName() + " (" + a.getClassName() + ")"));
                 }
 
+                // RIGHT: Salary Status UI
                 JPanel rightPanel = new JPanel();
-                rightPanel.setBackground(CARD_BG);
-                String status = salaryMap.getOrDefault(t.getId(), "No");
+                rightPanel.setBackground(UITheme.WHITE);
 
-                if ("Yes".equalsIgnoreCase(status)) {
-                    JLabel paid = new JLabel("✅ Salary Paid");
-                    paid.setForeground(GREEN);
+                String status = statusMap.getOrDefault(t.getId(), "No");
+                String paidDate = dateMap.get(t.getId());
+
+                if ("Yes".equalsIgnoreCase(status) && paidDate != null) {
+                    JLabel paid = new JLabel("✅ Paid on " + paidDate);
+                    paid.setForeground(UITheme.SUCCESS);
                     rightPanel.add(paid);
                 } else {
                     JCheckBox check = new JCheckBox("Mark as Paid");
-                    check.setForeground(WHITE);
-                    check.setBackground(CARD_BG);
+                    check.setBackground(UITheme.WHITE);
                     rightPanel.add(check);
+
                     check.addActionListener(e -> {
                         TeacherSalaryDAO.markAsPaid(t.getId());
+
+                        // Refresh only this row’s right panel
                         rightPanel.removeAll();
-                        JLabel paid = new JLabel("✅ Paid");
-                        paid.setForeground(GREEN);
+                        JLabel paid = new JLabel("✅ Paid on Today");
+                        paid.setForeground(UITheme.SUCCESS);
                         rightPanel.add(paid);
                         rightPanel.revalidate();
                         rightPanel.repaint();
@@ -284,20 +258,15 @@ public class SchoolDetailsPanel extends JPanel {
     class ClassSubjectViewerPanel extends JPanel {
         public ClassSubjectViewerPanel() {
             setLayout(new BorderLayout());
-            setBackground(DARK_BG);
+            setBackground(UITheme.LIGHT_GRAY);
             setBorder(new EmptyBorder(10, 10, 10, 10));
 
-            JLabel header = new JLabel("📘 Classes and Their Assigned Subjects", SwingConstants.CENTER);
-            header.setFont(new Font("Segoe UI", Font.BOLD, 20));
-            header.setForeground(WHITE);
-            header.setBorder(new EmptyBorder(10, 10, 20, 10));
+            JLabel header = UITheme.createTitleLabel("Classes and Their Assigned Subjects");
             add(header, BorderLayout.NORTH);
 
-            // ✅ Use GridLayout: 0 rows, 4 columns, auto-wrap
             JPanel cardGrid = new JPanel(new GridLayout(0, 4, 15, 15));
-            cardGrid.setBackground(DARK_BG);
+            cardGrid.setBackground(UITheme.LIGHT_GRAY);
 
-            // ✅ Fill cards
             Map<String, List<String>> classToSubjects = TeacherDAO.getAllDetailedAssignments().stream()
                     .collect(Collectors.groupingBy(
                             TeacherAssignment::getClassName,
@@ -305,54 +274,30 @@ public class SchoolDetailsPanel extends JPanel {
                     ));
 
             for (Map.Entry<String, List<String>> entry : classToSubjects.entrySet()) {
-                String className = entry.getKey();
-                List<String> subjects = entry.getValue();
-
                 JPanel card = new JPanel();
                 card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-                card.setBackground(CARD_BG);
+                card.setBackground(UITheme.WHITE);
                 card.setPreferredSize(new Dimension(220, 190));
+                card.setBorder(UITheme.getRoundedOrangeBorder(entry.getKey()));
 
-                TitledBorder border = BorderFactory.createTitledBorder(new LineBorder(ORANGE), className);
-                border.setTitleColor(WHITE);
-                card.setBorder(border);
-
-                for (String subject : subjects) {
+                for (String subject : entry.getValue()) {
                     JLabel label = new JLabel("➤ " + subject);
-                    label.setForeground(WHITE);
                     card.add(label);
                 }
 
                 cardGrid.add(card);
             }
 
-            // ✅ Scrollable wrapper
             JScrollPane scrollPane = new JScrollPane(cardGrid);
-            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             scrollPane.setBorder(null);
-            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
             add(scrollPane, BorderLayout.CENTER);
         }
     }
 
-    private JButton styleButton(String text) {
+    private JButton createButton(String text) {
         JButton btn = new JButton(text);
-        btn.setBackground(ORANGE);
-        btn.setForeground(WHITE);
-        btn.setFocusPainted(false);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        UITheme.stylePrimaryButton(btn);
         return btn;
-    }
-
-    private void applyLabelColors(JPanel panel, Color color) {
-        for (Component comp : panel.getComponents()) {
-            if (comp instanceof JLabel label) {
-                label.setForeground(color);
-            } else if (comp instanceof JPanel subPanel) {
-                applyLabelColors(subPanel, color);
-            }
-        }
     }
 
     public static void main(String[] args) {
@@ -366,4 +311,3 @@ public class SchoolDetailsPanel extends JPanel {
         });
     }
 }
-

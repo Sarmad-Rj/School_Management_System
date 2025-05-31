@@ -6,6 +6,7 @@ import db.DBConnection;
 import email.EmailService;
 import models.Teacher;
 import models.User;
+import theme.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,6 +35,8 @@ public class LoginPage extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(new BorderLayout());
+        UITheme.applyFrameDefaults(this);
+
 
         // === Left Image Panel ===
         JPanel leftPanel = new JPanel();

@@ -2,6 +2,7 @@ package ui;
 
 import dao.WorkerDAO;
 import models.Worker;
+import theme.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,8 @@ public class RegisterWorkerForm extends JFrame {
         setSize(450, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        UITheme.applyFrameDefaults(this);
+
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));

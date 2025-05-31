@@ -15,6 +15,7 @@ public class SplashScreen extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().setBackground(Color.WHITE);
         setLayout(new BorderLayout());
+        setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15));
 
         // Logo (Center)
         try {
@@ -28,26 +29,23 @@ public class SplashScreen extends JFrame {
             error.setForeground(Color.RED);
             add(error, BorderLayout.CENTER);
         }
-
-        // Title (Bottom)
-//        JLabel title = new JLabel("Bright Future School", SwingConstants.CENTER);
-//        title.setFont(new Font("Poppins", Font.BOLD, 26));
-//        title.setForeground(new Color(0xFF5722)); // Orange
-//        add(title, BorderLayout.SOUTH);
     }
 
     public static void showSplashThenLogin() {
         SplashScreen splash = new SplashScreen();
         splash.setVisible(true);
 
+//        Timer timer = new Timer(3000, e -> {
+//            splash.dispose();
+//            SwingUtilities.invokeLater(() -> {
+//                LoginPage login = new LoginPage();
+//                login.setVisible(true);
+//            });
+//        });
         Timer timer = new Timer(3000, e -> {
             splash.dispose();
-            SwingUtilities.invokeLater(() -> {
-                LoginPage login = new LoginPage();
-                login.setVisible(true);
-            });
+            new LoginPage().setVisible(true);
         });
-
         timer.setRepeats(false);
         timer.start();
     }

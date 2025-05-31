@@ -3,6 +3,7 @@ package ui;
 import dao.MarkDAO;
 import dao.StudentDAO;
 import models.Student;
+import theme.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,42 +26,60 @@ public class UploadMarksPanel extends JPanel {
         this.subjectId = subjectId;
 
         setLayout(new BorderLayout(15, 15));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBackground(UITheme.LIGHT_GRAY); // Maintain consistency
 
-        // Term selection
-        JPanel topPanel = new JPanel();
+        // Top Section - Term Selection
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topPanel.setBackground(UITheme.WHITE);
         topPanel.add(new JLabel("Select Term:"));
+
         termComboBox = new JComboBox<>(new String[]{"First", "Second", "Final"});
+        UITheme.styleComboBox(termComboBox); // Apply custom styling
         topPanel.add(termComboBox);
+
         add(topPanel, BorderLayout.NORTH);
 
-        // Students list with input fields
-        studentMarksPanel = new JPanel();
-        studentMarksPanel.setLayout(new BoxLayout(studentMarksPanel, BoxLayout.Y_AXIS));
-        JScrollPane scrollPane = new JScrollPane(studentMarksPanel);
+        // Center Section - Organized Student Marks Input
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(UITheme.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 10, 5, 10);
+
+        List<Student> students = StudentDAO.getStudentsByClassId(classId);
+        int row = 0;
+        for (Student s : students) {
+            gbc.gridx = 0;
+            gbc.gridy = row;
+            gbc.weightx = 1.0;
+            JLabel nameLabel = new JLabel(s.getName());
+            nameLabel.setFont(UITheme.DEFAULT_FONT);
+            centerPanel.add(nameLabel, gbc);
+
+            gbc.gridx = 1;
+            gbc.weightx = 0;
+            JTextField markField = new JTextField(5);
+            centerPanel.add(markField, gbc);
+
+            markFields.put(s.getId(), markField);
+            row++;
+        }
+
+        JScrollPane scrollPane = new JScrollPane(centerPanel);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Submit button
+        // Bottom Section - Submit Button
         submitButton = new JButton("Submit Marks");
+        UITheme.stylePrimaryButton(submitButton);
         submitButton.addActionListener(e -> handleSubmit());
-        add(submitButton, BorderLayout.SOUTH);
 
-        loadStudentList();
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setBackground(UITheme.LIGHT_GRAY);
+        bottomPanel.add(submitButton);
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    private void loadStudentList() {
-        List<Student> students = StudentDAO.getStudentsByClassId(classId);
-        for (Student s : students) {
-            JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JLabel nameLabel = new JLabel(s.getName());
-            JTextField markField = new JTextField(5);
-            markFields.put(s.getId(), markField);
-
-            row.add(nameLabel);
-            row.add(markField);
-            studentMarksPanel.add(row);
-        }
-    }
 
     private void handleSubmit() {
         String term = (String) termComboBox.getSelectedItem();

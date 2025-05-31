@@ -4,9 +4,9 @@ import dao.ClassDAO;
 import dao.SubjectDAO;
 import models.ClassItem;
 import models.Subject;
+import theme.UITheme;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -22,16 +22,15 @@ public class ManageClassesSubjectsPanel extends JPanel {
 
     public ManageClassesSubjectsPanel() {
         setLayout(new BorderLayout(10, 10));
+        setBackground(UITheme.LIGHT_GRAY);
 
-        // Header
-        JLabel titleLabel = new JLabel("Manage Classes and Subjects", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        titleLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        add(titleLabel, BorderLayout.NORTH);
+        JLabel titleLabel = UITheme.createTitleLabel("Manage Classes and Subjects");
+        JPanel headerPanel = UITheme.createHeaderPanel(titleLabel);
+        add(headerPanel, BorderLayout.NORTH);
 
-        // Panels Container
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(UITheme.LIGHT_GRAY);
 
         contentPanel.add(createClassFormPanel());
         contentPanel.add(Box.createVerticalStrut(20));
@@ -41,7 +40,6 @@ public class ManageClassesSubjectsPanel extends JPanel {
         contentPanel.add(Box.createVerticalStrut(20));
         contentPanel.add(createClassTablePanel());
 
-        // Wrap in scroll pane
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         add(scrollPane, BorderLayout.CENTER);
@@ -51,31 +49,30 @@ public class ManageClassesSubjectsPanel extends JPanel {
     }
 
     private JPanel createClassFormPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Add New Class"));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 10, 5, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.setBackground(UITheme.WHITE);
 
-        classNameField = new JTextField(15);
-        sectionField = new JTextField(10);
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        inputPanel.setBackground(UITheme.WHITE);
+
+        classNameField = new JTextField(10);
+        sectionField = new JTextField(5);
+
+        inputPanel.add(new JLabel("Class Name:"));
+        inputPanel.add(classNameField);
+        inputPanel.add(new JLabel("Section:"));
+        inputPanel.add(sectionField);
+
         JButton addButton = new JButton("Add Class");
+        UITheme.stylePrimaryButton(addButton);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(new JLabel("Class Name:"), gbc);
-        gbc.gridx = 1;
-        panel.add(classNameField, gbc);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBackground(UITheme.WHITE);
+        buttonPanel.add(addButton);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(new JLabel("Section:"), gbc);
-        gbc.gridx = 1;
-        panel.add(sectionField, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        panel.add(addButton, gbc);
+        panel.add(inputPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.EAST);
 
         addButton.addActionListener(e -> {
             String name = classNameField.getText().trim();
@@ -95,15 +92,26 @@ public class ManageClassesSubjectsPanel extends JPanel {
     }
 
     private JPanel createSubjectFormPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Add New Subject"));
+        panel.setBackground(UITheme.WHITE);
+
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        inputPanel.setBackground(UITheme.WHITE);
 
         subjectNameField = new JTextField(20);
-        JButton addSubjectButton = new JButton("Add Subject");
+        inputPanel.add(new JLabel("Subject Name:"));
+        inputPanel.add(subjectNameField);
 
-        panel.add(new JLabel("Subject Name:"));
-        panel.add(subjectNameField);
-        panel.add(addSubjectButton);
+        JButton addSubjectButton = new JButton("Add Subject");
+        UITheme.stylePrimaryButton(addSubjectButton);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBackground(UITheme.WHITE);
+        buttonPanel.add(addSubjectButton);
+
+        panel.add(inputPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.EAST);
 
         addSubjectButton.addActionListener(e -> {
             String subjectName = subjectNameField.getText().trim();
@@ -122,32 +130,37 @@ public class ManageClassesSubjectsPanel extends JPanel {
 
     private JPanel createAssignSubjectsPanel() {
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Main panel still vertically oriented
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createTitledBorder("Assign Subjects to Class"));
+        panel.setBackground(UITheme.WHITE);
 
         JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topRow.setBackground(UITheme.WHITE);
+
         classComboBox = new JComboBox<>();
+        UITheme.styleComboBox(classComboBox);
+
         topRow.add(new JLabel("Select Class:"));
         topRow.add(classComboBox);
 
-        subjectCheckboxPanel = new JPanel(new GridLayout(0, 4, 10, 5)); // 0 rows, 4 columns, 10px horizontal gap, 5px vertical gap
+        subjectCheckboxPanel = new JPanel(new GridLayout(0, 4, 10, 5));
+        subjectCheckboxPanel.setBackground(UITheme.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(subjectCheckboxPanel);
-        scrollPane.setPreferredSize(new Dimension(600, 200)); // Adjust preferred size as needed
+        scrollPane.setPreferredSize(new Dimension(600, 200));
 
         JButton assignButton = new JButton("Assign Selected Subjects");
+        UITheme.stylePrimaryButton(assignButton);
 
         panel.add(topRow);
-        panel.add(scrollPane); // Add the scroll pane containing the checkboxes
+        panel.add(scrollPane);
         panel.add(assignButton);
 
         assignButton.addActionListener((ActionEvent e) -> {
             ClassItem selectedClass = (ClassItem) classComboBox.getSelectedItem();
             if (selectedClass == null) return;
 
-            // Ensure this method correctly extracts selected subjects from the new layout
             List<Integer> selectedSubjectIds = SubjectDAO.getSelectedSubjectIds(subjectCheckboxPanel);
-
             if (selectedSubjectIds != null && !selectedSubjectIds.isEmpty()) {
                 boolean success = SubjectDAO.assignSubjectsToClass(selectedClass.getId(), selectedSubjectIds);
                 JOptionPane.showMessageDialog(this, success ? "Subjects assigned." : "Failed to assign.");
@@ -162,6 +175,7 @@ public class ManageClassesSubjectsPanel extends JPanel {
     private JPanel createClassTablePanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Existing Classes"));
+        panel.setBackground(UITheme.WHITE);
 
         classTableModel = new DefaultTableModel(new Object[]{"ID", "Class", "Section"}, 0);
         JTable table = new JTable(classTableModel);
@@ -193,7 +207,6 @@ public class ManageClassesSubjectsPanel extends JPanel {
         subjectCheckboxPanel.repaint();
     }
 
-    // Main method for testing
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test ManageClassesSubjectsPanel");

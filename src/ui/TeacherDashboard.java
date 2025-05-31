@@ -2,9 +2,9 @@ package ui;
 
 import dao.TeacherDAO;
 import models.ClassItem;
-import models.Subject;
 import models.Teacher;
 import models.TeacherAssignment;
+import theme.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,32 +12,28 @@ import java.util.List;
 
 public class TeacherDashboard extends JFrame {
 
-    private final Color ORANGE = new Color(255, 87, 34);
-    private final Color BLACK = new Color(25, 25, 25);
-    private final Color WHITE = Color.WHITE;
-    private final Color CARD_BG = new Color(245, 245, 245);
-
     public TeacherDashboard(Teacher teacher) {
         setTitle("Teacher Dashboard - " + teacher.getName());
-        setSize(1050, 600);
+        setSize(1000, 620);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        UITheme.applyFrameDefaults(this);
+
 
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
-        mainPanel.setBackground(BLACK);
+        mainPanel.setBackground(UITheme.LIGHT_GRAY);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
         setContentPane(mainPanel);
 
-        JLabel titleLabel = new JLabel("Welcome, " + teacher.getName(), SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        titleLabel.setForeground(ORANGE);
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
+        JLabel titleLabel = UITheme.createTitleLabel("Welcome, " + teacher.getName());
+        JPanel headerPanel = UITheme.createHeaderPanel(titleLabel);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
 
         // LEFT: Info Panel
         JPanel infoPanel = new JPanel(new GridLayout(5, 1, 1, 10));
-        infoPanel.setBackground(WHITE);
-        infoPanel.setPreferredSize(new Dimension(300, 180));
-        infoPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(ORANGE, 2), "Teacher Info"));
+        infoPanel.setBackground(UITheme.WHITE);
+        infoPanel.setPreferredSize(new Dimension(250, 180));
+        infoPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(UITheme.ORANGE, 2), "Teacher Info"));
 
         infoPanel.add(createLabel("Name: " + teacher.getName()));
         infoPanel.add(createLabel("Email: " + teacher.getEmail()));
@@ -49,27 +45,26 @@ public class TeacherDashboard extends JFrame {
 
         // CENTER: Dynamic class+subject cards
         JPanel cardGrid = new JPanel(new GridLayout(0, 2, 15, 15));
-        cardGrid.setBackground(WHITE);
-        cardGrid.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(ORANGE, 2), "Assigned Classes & Subjects"));
+        cardGrid.setBackground(UITheme.LIGHT_GRAY);
+        cardGrid.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(UITheme.ORANGE, 2), "Assigned Classes & Subjects"));
 
         JScrollPane scrollPane = new JScrollPane(cardGrid);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         // SOUTH: Logout Button
         JButton logoutBtn = new JButton("Logout");
-        logoutBtn.setBackground(ORANGE);
-        logoutBtn.setForeground(Color.WHITE);
-        logoutBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        logoutBtn.setFocusPainted(false);
-        logoutBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        logoutBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
+        UITheme.stylePrimaryButton(logoutBtn);
+        logoutBtn.setPreferredSize(new Dimension(120, 40));
         logoutBtn.addActionListener(e -> {
             dispose();
-            SwingUtilities.invokeLater(() -> new LoginPage().setVisible(true)); // Open login page again
+            SwingUtilities.invokeLater(() -> new LoginPage().setVisible(true));
         });
 
-        mainPanel.add(logoutBtn, BorderLayout.SOUTH);
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setBackground(UITheme.LIGHT_GRAY);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 10));
+        bottomPanel.add(logoutBtn);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         List<TeacherAssignment> assignments = TeacherDAO.getAssignmentsByUsername(teacher.getUsername());
 
@@ -86,8 +81,9 @@ public class TeacherDashboard extends JFrame {
 
     private JPanel createAssignmentCard(TeacherAssignment ta) {
         JPanel card = new JPanel(new BorderLayout(10, 10));
-        card.setBackground(CARD_BG);
-        card.setBorder(BorderFactory.createLineBorder(ORANGE, 2));
+        card.setBackground(UITheme.WHITE);
+        card.setBorder(BorderFactory.createLineBorder(UITheme.ORANGE, 2));
+        card.setPreferredSize(new Dimension(280, 140));
 
         JLabel classLabel = new JLabel("Class: " + ta.getClassName(), SwingConstants.CENTER);
         classLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -96,24 +92,23 @@ public class TeacherDashboard extends JFrame {
         subjectLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         JPanel btnPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        btnPanel.setBackground(UITheme.WHITE);
         JButton btnMarks = new JButton("Upload Marks");
         JButton btnAttendance = new JButton("Upload Attendance");
 
-        btnMarks.setBackground(ORANGE);
-        btnMarks.setForeground(Color.WHITE);
-        btnAttendance.setBackground(ORANGE);
-        btnAttendance.setForeground(Color.WHITE);
+        UITheme.stylePrimaryButton(btnMarks);
+        UITheme.stylePrimaryButton(btnAttendance);
 
         btnPanel.add(btnMarks);
         btnPanel.add(btnAttendance);
 
         btnMarks.addActionListener(e -> {
-            String rawClass = ta.getClassName();     // might be just "Class_7"
-            String rawSubject = ta.getSubjectName(); // might be "Math"
+            String rawClass = ta.getClassName();
+            String rawSubject = ta.getSubjectName();
 
             int classId = findClassIdSmartMatch(rawClass);
 
-            String cleanedSubject = rawSubject.split("-")[0].trim();  // "Math"
+            String cleanedSubject = rawSubject.split("-")[0].trim();
             int subjectId = dao.SubjectDAO.getAllSubjects().stream()
                     .filter(s -> s.getName().equalsIgnoreCase(cleanedSubject))
                     .map(s -> s.getId())
@@ -131,9 +126,10 @@ public class TeacherDashboard extends JFrame {
             frame.setContentPane(new UploadMarksPanel(classId, subjectId));
             frame.setVisible(true);
         });
+
         btnAttendance.addActionListener(e -> {
             int classId = findClassIdSmartMatch(ta.getClassName());
-            int subjectId = getSubjectIdByName(ta.getSubjectName()); // optional, if needed
+            int subjectId = getSubjectIdByName(ta.getSubjectName());
 
             if (classId == -1) {
                 JOptionPane.showMessageDialog(this, "Class not found.");
@@ -157,7 +153,7 @@ public class TeacherDashboard extends JFrame {
 
     private int findClassIdSmartMatch(String classBaseName) {
         for (ClassItem c : dao.ClassDAO.getAllClasses()) {
-            String fullName = c.getClassName().trim(); // e.g., Class_7
+            String fullName = c.getClassName().trim();
             if (fullName.equalsIgnoreCase(classBaseName.trim())) {
                 return c.getId();
             }
@@ -166,9 +162,6 @@ public class TeacherDashboard extends JFrame {
     }
 
     private int getSubjectIdByName(String subjectName) {
-        for (Subject s : dao.SubjectDAO.getAllSubjects()) {
-            System.out.println("Comparing: " + subjectName + " vs " + s.getName());
-        }
         return dao.SubjectDAO.getAllSubjects().stream()
                 .filter(s -> s.getName().equalsIgnoreCase(subjectName))
                 .map(s -> s.getId())
@@ -176,16 +169,10 @@ public class TeacherDashboard extends JFrame {
                 .orElse(-1);
     }
 
-
     private JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        label.setForeground(BLACK);
+        label.setForeground(UITheme.DARK_TEXT);
         return label;
     }
-
-//    public static void main(String[] args) {
-//        Teacher t = new Teacher("Alice", "alice@example.com", "03111222333", "35201-1234567-1", "alicej", "pass123", "assASs", "as");
-//        new TeacherDashboard(t);
-//    }
 }
