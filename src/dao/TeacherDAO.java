@@ -87,6 +87,7 @@ public class TeacherDAO {
         }
         return null;
     }
+
     public static List<TeacherAssignment> getAssignmentsByUsername(String username) {
         List<TeacherAssignment> list = new ArrayList<>();
 
@@ -116,6 +117,7 @@ public class TeacherDAO {
 
         return list;
     }
+
     public static List<Teacher> getAllTeachers() {
         List<Teacher> list = new ArrayList<>();
         String sql = "SELECT * FROM teachers";
@@ -145,4 +147,36 @@ public class TeacherDAO {
 
         return list;
     }
+
+    public static List<TeacherAssignment> getAllDetailedAssignments() {
+        List<TeacherAssignment> list = new ArrayList<>();
+
+        String sql = """
+        SELECT c.class_name || '-' || c.section AS class_name,
+               s.subject_name,
+               t.name AS teacher_name
+        FROM teacher_assignments ta
+        JOIN classes c ON ta.class_id = c.class_id
+        JOIN subjects s ON ta.subject_id = s.subject_id
+        JOIN teachers t ON ta.teacher_username = t.username
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                String className = rs.getString("class_name");
+                String subjectName = rs.getString("subject_name");
+                String teacherName = rs.getString("teacher_name");
+
+                list.add(new TeacherAssignment(className, subjectName + " - " + teacherName));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
 }

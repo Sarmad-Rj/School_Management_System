@@ -36,7 +36,6 @@ public class SubjectDAO {
         return false;
     }
 
-
     public static List<Subject> getAllSubjects() {
         List<Subject> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
@@ -91,5 +90,26 @@ public class SubjectDAO {
             return false;
         }
     }
+
+    public static Subject getSubjectById(int subjectId) {
+        String sql = "SELECT * FROM subjects WHERE subject_id = ?";
+        try (Connection conn = db.DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, subjectId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Subject(
+                        rs.getInt("subject_id"),
+                        rs.getString("subject_name")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }

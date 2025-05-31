@@ -1,7 +1,6 @@
 package main;
 
 import ui.LoginPage;
-
 import javax.swing.*;
 
 public class Main {

@@ -77,7 +77,13 @@ public class StudentDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, classId);
+            System.out.println("Running SQL for class_id = " + classId);
             ResultSet rs = stmt.executeQuery();
+            if (!rs.isBeforeFirst()) {
+                System.out.println("⚠️ No data returned for class_id: " + classId);
+            }
+
+
 
             while (rs.next()) {
                 list.add(new Student(
@@ -98,7 +104,7 @@ public class StudentDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return list;
     }
+
 }
