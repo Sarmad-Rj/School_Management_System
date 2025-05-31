@@ -2,12 +2,10 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class VPDashboard extends JFrame {
-
-    private final Color ORANGE = new Color(255, 87, 34);
-    private final Color BLACK = new Color(25, 25, 25);
-    private final Color WHITE = Color.WHITE;
 
     public VPDashboard() {
         setTitle("Vice Principal Dashboard");
@@ -15,16 +13,16 @@ public class VPDashboard extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BLACK);
+        getContentPane().setBackground(UITheme.LIGHT_GRAY);
 
-        JLabel header = new JLabel("Vice Principal Dashboard", SwingConstants.CENTER);
-        header.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        header.setForeground(ORANGE);
-        header.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
-        add(header, BorderLayout.NORTH);
+        // Header
+        JLabel header = UITheme.createTitleLabel("Vice Principal Dashboard");
+        JPanel headerPanel = UITheme.createHeaderPanel(header);
+        add(headerPanel, BorderLayout.NORTH);
 
+        // Card Grid
         JPanel cardPanel = new JPanel(new GridLayout(2, 4, 20, 20));
-        cardPanel.setBackground(BLACK);
+        cardPanel.setBackground(UITheme.LIGHT_GRAY);
         cardPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
         cardPanel.add(createCard("Register", "Register students, teachers, workers"));
@@ -34,12 +32,13 @@ public class VPDashboard extends JFrame {
         cardPanel.add(createCard("Notifications", "Send and receive messages"));
         cardPanel.add(createCard("Manage Classes & Subjects", "Add classes, sections & assign subjects"));
         cardPanel.add(createCard("School Details", "View all student/teacher/worker data"));
-        JPanel emptyPanel = new JPanel();
-        emptyPanel.setOpaque(false);
-        cardPanel.add(emptyPanel);
+        cardPanel.add(new JPanel()); // empty placeholder
 
+        add(cardPanel, BorderLayout.CENTER);
+
+        // Logout Button
         JButton logoutButton = new JButton("Logout");
-        styleButton(logoutButton);
+        UITheme.stylePrimaryButton(logoutButton);
         logoutButton.setPreferredSize(new Dimension(120, 40));
         logoutButton.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to logout?", "Confirm Logout", JOptionPane.YES_NO_OPTION);
@@ -50,42 +49,44 @@ public class VPDashboard extends JFrame {
         });
 
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setBackground(BLACK);
+        bottomPanel.setBackground(UITheme.LIGHT_GRAY);
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 10));
         bottomPanel.add(logoutButton);
-
-        add(cardPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
     private JPanel createCard(String title, String description) {
-        JPanel card = new JPanel();
-        card.setLayout(new BorderLayout(10, 10));
+        JPanel card = new JPanel(new BorderLayout(10, 10));
         card.setPreferredSize(new Dimension(220, 130));
-        card.setBackground(WHITE);
-        card.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(ORANGE, 2), title));
+        card.setBackground(UITheme.WHITE);
+        card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        card.setBorder(UITheme.getRoundedOrangeBorder());
 
         JLabel descLabel = new JLabel("<html><div style='text-align:center;'>" + description + "</div></html>", SwingConstants.CENTER);
         descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         JButton openButton = new JButton("Open");
-        styleButton(openButton);
+        UITheme.stylePrimaryButton(openButton);
+        openButton.setPreferredSize(new Dimension(90, 30));
 
         card.add(descLabel, BorderLayout.CENTER);
         card.add(openButton, BorderLayout.SOUTH);
 
+        // Hover effect
+        card.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                card.setBackground(new Color(255, 243, 233));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                card.setBackground(UITheme.WHITE);
+            }
+        });
+
         openButton.addActionListener(e -> handleCardClick(title));
-
         return card;
-    }
-
-    private void styleButton(JButton button) {
-        button.setBackground(ORANGE);
-        button.setForeground(WHITE);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
     private void handleCardClick(String title) {

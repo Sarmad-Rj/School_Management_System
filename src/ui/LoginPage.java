@@ -1,4 +1,3 @@
-// ui/LoginPage.java
 package ui;
 
 import dao.UserDAO;
@@ -29,95 +28,146 @@ public class LoginPage extends JFrame {
     private final Color WHITE = Color.WHITE;
 
     public LoginPage() {
-        setTitle("School Management - Login");
+        setTitle("Bright Future School - Login");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(500, 350);
+        setSize(700, 450);
         setLocationRelativeTo(null);
         setResizable(false);
+        setLayout(new BorderLayout());
 
-        // Main panel
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(BLACK);
-        panel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+        // === Left Image Panel ===
+        JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(Color.WHITE);
+        leftPanel.setPreferredSize(new Dimension(300, 450));
+        leftPanel.setLayout(new BorderLayout());
+
+        try {
+            ImageIcon icon = new ImageIcon("C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\logo Bright Future School.png"); // update path if needed
+            Image scaled = icon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+            JLabel imageLabel = new JLabel(new ImageIcon(scaled));
+            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            leftPanel.add(imageLabel, BorderLayout.CENTER);
+        } catch (Exception e) {
+            JLabel fallback = new JLabel("Logo", SwingConstants.CENTER);
+            fallback.setFont(new Font("Arial", Font.BOLD, 28));
+            fallback.setForeground(Color.GRAY);
+            leftPanel.add(fallback, BorderLayout.CENTER);
+        }
+
+        add(leftPanel, BorderLayout.WEST);
+
+        // === Right Login Form Panel ===
+        JPanel rightPanel = new JPanel(new GridBagLayout());
+//        rightPanel.setBackground(new Color(25, 25, 25)); // if i want the BLACK
+        rightPanel.setBackground(Color.WHITE);
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(40, 30, 0, 30));
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(12, 12, 12, 12);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Font
-        Font font = new Font("Segoe UI", Font.PLAIN, 16);
-
-        JLabel title = new JLabel("Login to School System");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setForeground(ORANGE);
+        // Title
+        JLabel title = new JLabel("Welcome to Bright Future School");
+        title.setFont(new Font("Poppins", Font.BOLD, 20));
+        title.setForeground(new Color(255, 87, 34));
         title.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridwidth = 2;
         gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(title, gbc);
+        rightPanel.add(title, gbc);
         gbc.gridwidth = 1;
 
         // Role
         JLabel roleLabel = createLabel("Role:");
         gbc.gridx = 0; gbc.gridy = 1;
-        panel.add(roleLabel, gbc);
+        rightPanel.add(roleLabel, gbc);
 
         roleComboBox = new JComboBox<>(new String[]{"Principal", "Vice Principal", "Teacher"});
         styleField(roleComboBox);
         gbc.gridx = 1;
-        panel.add(roleComboBox, gbc);
+        rightPanel.add(roleComboBox, gbc);
+
+        roleComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+                c.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+                c.setForeground(Color.BLACK);
+                c.setBackground(isSelected ? new Color(255, 87, 34) : Color.WHITE); // Orange on hover, white otherwise
+                return c;
+            }
+        });
+
 
         // Username
         JLabel userLabel = createLabel("Username:");
         gbc.gridx = 0; gbc.gridy = 2;
-        panel.add(userLabel, gbc);
+        rightPanel.add(userLabel, gbc);
 
         usernameField = new JTextField(15);
         styleField(usernameField);
         gbc.gridx = 1;
-        panel.add(usernameField, gbc);
+        rightPanel.add(usernameField, gbc);
 
         // Password
         JLabel passLabel = createLabel("Password:");
         gbc.gridx = 0; gbc.gridy = 3;
-        panel.add(passLabel, gbc);
+        rightPanel.add(passLabel, gbc);
 
         passwordField = new JPasswordField(15);
         styleField(passwordField);
         gbc.gridx = 1;
-        panel.add(passwordField, gbc);
+        rightPanel.add(passwordField, gbc);
 
         // Login button
         loginButton = new JButton("Login");
         styleButton(loginButton);
         gbc.gridx = 1; gbc.gridy = 4;
-        panel.add(loginButton, gbc);
+        rightPanel.add(loginButton, gbc);
 
         // Forgot button
         forgotButton = new JButton("Forgot Password?");
-        forgotButton.setForeground(ORANGE);
-        forgotButton.setFont(font);
+        forgotButton.setForeground(new Color(255, 87, 34));
+        forgotButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         forgotButton.setContentAreaFilled(false);
         forgotButton.setBorderPainted(false);
         forgotButton.setFocusPainted(false);
         forgotButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         gbc.gridy = 5;
-        panel.add(forgotButton, gbc);
+        rightPanel.add(forgotButton, gbc);
 
-        add(panel);
+        add(rightPanel, BorderLayout.CENTER);
 
         loginButton.addActionListener(this::onLoginClick);
         forgotButton.addActionListener(e -> onForgotPassword());
     }
 
+//    private JLabel createLabel(String text) {
+//        JLabel label = new JLabel(text);
+//        label.setForeground(WHITE);
+//        label.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+//        return label;
+//    }
+
     private JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setForeground(WHITE);
+        label.setForeground(Color.DARK_GRAY); // instead of WHITE
         label.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         return label;
     }
 
+//    private void styleField(JComponent comp) {
+//        comp.setBackground(Color.DARK_GRAY);
+//        comp.setForeground(WHITE);
+//        comp.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+//        comp.setBorder(BorderFactory.createLineBorder(ORANGE, 1));
+//    }
+
     private void styleField(JComponent comp) {
-        comp.setBackground(Color.DARK_GRAY);
-        comp.setForeground(WHITE);
+        comp.setBackground(Color.WHITE);
+        comp.setForeground(Color.BLACK);
         comp.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         comp.setBorder(BorderFactory.createLineBorder(ORANGE, 1));
     }

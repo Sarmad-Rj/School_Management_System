@@ -1,6 +1,8 @@
 package ui;
 
 import dao.TeacherDAO;
+import models.ClassItem;
+import models.Subject;
 import models.Teacher;
 import models.TeacherAssignment;
 
@@ -105,12 +107,75 @@ public class TeacherDashboard extends JFrame {
         btnPanel.add(btnMarks);
         btnPanel.add(btnAttendance);
 
+        btnMarks.addActionListener(e -> {
+            String rawClass = ta.getClassName();     // might be just "Class_7"
+            String rawSubject = ta.getSubjectName(); // might be "Math"
+
+            int classId = findClassIdSmartMatch(rawClass);
+
+            String cleanedSubject = rawSubject.split("-")[0].trim();  // "Math"
+            int subjectId = dao.SubjectDAO.getAllSubjects().stream()
+                    .filter(s -> s.getName().equalsIgnoreCase(cleanedSubject))
+                    .map(s -> s.getId())
+                    .findFirst().orElse(-1);
+
+            if (classId == -1 || subjectId == -1) {
+                JOptionPane.showMessageDialog(this, "Class or Subject not found in database.");
+                return;
+            }
+
+            JFrame frame = new JFrame("Upload Marks - " + rawClass + " - " + cleanedSubject);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setSize(600, 600);
+            frame.setLocationRelativeTo(null);
+            frame.setContentPane(new UploadMarksPanel(classId, subjectId));
+            frame.setVisible(true);
+        });
+        btnAttendance.addActionListener(e -> {
+            int classId = findClassIdSmartMatch(ta.getClassName());
+            int subjectId = getSubjectIdByName(ta.getSubjectName()); // optional, if needed
+
+            if (classId == -1) {
+                JOptionPane.showMessageDialog(this, "Class not found.");
+                return;
+            }
+
+            JFrame frame = new JFrame("Upload Attendance - " + ta.getClassName());
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setSize(600, 600);
+            frame.setLocationRelativeTo(null);
+            frame.setContentPane(new UploadAttendancePanel(classId));
+            frame.setVisible(true);
+        });
+
         card.add(classLabel, BorderLayout.NORTH);
         card.add(subjectLabel, BorderLayout.CENTER);
         card.add(btnPanel, BorderLayout.SOUTH);
 
         return card;
     }
+
+    private int findClassIdSmartMatch(String classBaseName) {
+        for (ClassItem c : dao.ClassDAO.getAllClasses()) {
+            String fullName = c.getClassName().trim(); // e.g., Class_7
+            if (fullName.equalsIgnoreCase(classBaseName.trim())) {
+                return c.getId();
+            }
+        }
+        return -1;
+    }
+
+    private int getSubjectIdByName(String subjectName) {
+        for (Subject s : dao.SubjectDAO.getAllSubjects()) {
+            System.out.println("Comparing: " + subjectName + " vs " + s.getName());
+        }
+        return dao.SubjectDAO.getAllSubjects().stream()
+                .filter(s -> s.getName().equalsIgnoreCase(subjectName))
+                .map(s -> s.getId())
+                .findFirst()
+                .orElse(-1);
+    }
+
 
     private JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
