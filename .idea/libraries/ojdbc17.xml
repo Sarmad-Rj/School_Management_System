@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/ojdbc17.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/sendgrid-java.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/itextpdf-5.5.13.2.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

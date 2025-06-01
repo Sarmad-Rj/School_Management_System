@@ -129,4 +129,11 @@ public class UITheme {
         JLabel iconLabel = new JLabel(resizedImage);
         panel.add(iconLabel);
     }
+
+    public static JLabel createIconLabel(String text, String iconPath, int size) {
+        ImageIcon icon = new ImageIcon(iconPath);
+        Image scaled = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        return new JLabel(text, new ImageIcon(scaled), JLabel.LEFT);
+    }
+
 }

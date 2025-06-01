@@ -92,4 +92,40 @@ public class ClassDAO {
         return null;
     }
 
+    public static String[] getAllClassNames() {
+        ArrayList<String> list = new ArrayList<>();
+        String sql = "SELECT class_name FROM classes ORDER BY class_id";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(rs.getString("class_name"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list.toArray(new String[0]);
+    }
+
+    public static int getClassIdByName(String name) {
+        String sql = "SELECT class_id FROM classes WHERE class_name = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, name);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("class_id");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return -1; // not found
+    }
 }

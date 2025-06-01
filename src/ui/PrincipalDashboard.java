@@ -20,7 +20,7 @@ public class PrincipalDashboard extends JFrame {
     private final Map<String, String> iconMap = new HashMap<>() {{
         put("Notifications", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Notification.png");
         put("Approvals", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Approvals.png");
-        put("Financial Record", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Financial Record.png");
+        put("Financial Record", "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Financial Record (2).png");
     }};
 
     public PrincipalDashboard() {

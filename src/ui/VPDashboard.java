@@ -154,6 +154,10 @@ public class VPDashboard extends JFrame {
                 schoolFrame.setVisible(true);
                 break;
 
+            case "Financial Record":
+                new FinanceDashboardFrame().setVisible(true);
+                break;
+
             default:
                 JOptionPane.showMessageDialog(this, title + " clicked. Functionality coming soon!");
                 break;
