@@ -11,15 +11,13 @@ public class UITheme {
     public static final Color DARK_GRAY = new Color(25, 25, 25);
     public static final Color WHITE = Color.WHITE;
     public static final Color LIGHT_GRAY = new Color(245, 245, 245);
-    public static final Font DEFAULT_FONT = new Font("Segoe UI", Font.PLAIN, 16);
     public static final Color SUCCESS = new Color(76, 175, 80);
     public static final Color DANGER = new Color(244, 67, 54);
     public static final Color WARNING = new Color(255, 193, 7);
     public static final Color DARK_BG = new Color(30, 30, 47);
     public static final Color CARD_BG = new Color(42, 42, 64);
-    public static final Color GREEN = new Color(76, 175, 80);
-    public static final Color RED = new Color(244, 67, 54);
     public static final Color DARK_TEXT = new Color(50, 50, 50);
+    public static final Font DEFAULT_FONT = new Font("Segoe UI", Font.PLAIN, 16);
 
     private static final String DEFAULT_ICON_PATH = "C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\our_logo_with_BG.jpg";
 
