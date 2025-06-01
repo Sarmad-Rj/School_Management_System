@@ -21,12 +21,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SchoolDetailsPanel extends JPanel {
+    private JTabbedPane tabbedPane;
 
     public SchoolDetailsPanel() {
         setLayout(new BorderLayout());
         setBackground(UITheme.LIGHT_GRAY);
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        setLayout(new BorderLayout());
+        setBackground(UITheme.LIGHT_GRAY);
+
+        tabbedPane = new JTabbedPane();
+//        JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         tabbedPane.addTab("Teacher Details", new TeacherSalaryPanel());
@@ -35,6 +40,15 @@ public class SchoolDetailsPanel extends JPanel {
         tabbedPane.addTab("Students In Class", new StudentsInClassPanel());
 
         add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    public void setSelectedTab(String tabTitle) {
+        for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+            if (tabbedPane.getTitleAt(i).toLowerCase().contains(tabTitle.toLowerCase())) {
+                tabbedPane.setSelectedIndex(i);
+                return;
+            }
+        }
     }
 
     class StudentsInClassPanel extends JPanel {
@@ -51,8 +65,12 @@ public class SchoolDetailsPanel extends JPanel {
             searchPanel.setBackground(UITheme.LIGHT_GRAY);
             searchField = new JTextField();
             JButton searchButton = createButton("Search");
-            JLabel searchLabel = new JLabel("🔍 Search Student:");
-            searchLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            ImageIcon searchIcon = new ImageIcon("C:\\Users\\HP\\OneDrive\\Desktop\\School_Management_System\\images\\Search.png");
+            Image img = searchIcon.getImage();
+            Image resizedImg = img.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon = new ImageIcon(resizedImg);
+            JLabel searchLabel = new JLabel("Search Student", resizedIcon, JLabel.LEFT);
+            searchLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
             searchPanel.add(searchLabel, BorderLayout.WEST);
             searchPanel.add(searchField, BorderLayout.CENTER);
             searchPanel.add(searchButton, BorderLayout.EAST);
